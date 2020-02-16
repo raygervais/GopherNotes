@@ -6,6 +6,12 @@ import (
 	"testing"
 )
 
+var TestNotes = []Note{
+	{date: "2020/01/02", entry: "Hello, Testing Filter!"},
+	{date: "2020/01/02", entry: "Hello, Testing!"},
+	{date: "2020/01/03", entry: "Hello, Testing Day 3!"},
+}
+
 var TestStrings = []string{"peach", "apple", "pear", "plum"}
 
 // Helper Functions
@@ -17,12 +23,41 @@ func AssertExpectedResultsBool(t *testing.T, got, want bool) {
 	}
 }
 
-func AssertExpectedResultsString(t *testing.T, got, want []string) {
+func AssertExpectedResultsStringArray(t *testing.T, got, want []string) {
 	t.Helper()
 
 	if !reflect.DeepEqual(want, got) {
 		t.Errorf("got %v, wanted %v", got, want)
 	}
+}
+
+func AssertExpectedResultsString(t *testing.T, got, want string) {
+	t.Helper()
+
+	if !reflect.DeepEqual(want, got) {
+		t.Errorf("got %v, wanted %v", got, want)
+	}
+}
+
+func AssertExpectedResultsNotes(t *testing.T, got, want Note) {
+	t.Helper()
+
+	if got.date != want.date {
+		t.Errorf("got %v, wanted %v", got, want)
+	}
+
+	if got.entry != want.entry {
+		t.Errorf("got %v, wanted %v", got, want)
+	}
+}
+
+func AssertExpectedResultsNotesArray(t *testing.T, got, want []Note) {
+	t.Helper()
+
+	if !reflect.DeepEqual(want, got) {
+		t.Errorf("got %v, wanted %v", got, want)
+	}
+
 }
 
 func TestCollectionUtilities(t *testing.T) {
@@ -60,19 +95,23 @@ func TestCollectionUtilities(t *testing.T) {
 		AssertExpectedResultsBool(t, got, want)
 	})
 
-	t.Run("Lists any item in the list contains 'e'", func(t *testing.T) {
-		want := []string{"peach", "apple", "pear"}
-		got := Filter(TestStrings, func(v string) bool {
-			return strings.Contains(v, "e")
+	t.Run("Lists any item in the list contains based on date", func(t *testing.T) {
+		want := []Note{
+			{date: "2020/01/02", entry: "Hello, Testing Filter!"},
+			{date: "2020/01/02", entry: "Hello, Testing!"},
+		}
+
+		got := Filter(TestNotes, func(v Note) bool {
+			return 0 == strings.Compare(v.date, "2020/01/02")
 		})
 
-		AssertExpectedResultsString(t, got, want)
+		AssertExpectedResultsNotesArray(t, got, want)
 	})
 
 	t.Run("Returns array with transformed list items", func(t *testing.T) {
 		want := []string{"PEACH", "APPLE", "PEAR", "PLUM"}
 		got := Map(TestStrings, strings.ToUpper)
 
-		AssertExpectedResultsString(t, got, want)
+		AssertExpectedResultsStringArray(t, got, want)
 	})
 }

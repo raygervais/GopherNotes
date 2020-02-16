@@ -7,8 +7,8 @@ import (
 
 const (
 	TestFile        = "./test.logs"
-	NonExistentFile = "/tmp/test.logs"
-	ExistentFile    = "/bin/sh"
+	NonExistentFile = "./100WaysPHPIsBetter.md"
+	ExistentFile    = "./README.md"
 )
 
 // Helper Functions

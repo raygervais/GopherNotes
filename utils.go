@@ -31,8 +31,8 @@ func All(vs []string, f func(string) bool) bool {
 	return true
 }
 
-func Filter(vs []string, f func(string) bool) []string {
-	vsf := make([]string, 0)
+func Filter(vs []Note, f func(Note) bool) []Note {
+	vsf := make([]Note, 0)
 	for _, v := range vs {
 		if f(v) {
 			vsf = append(vsf, v)

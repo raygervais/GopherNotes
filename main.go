@@ -4,35 +4,11 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"strings"
-	"time"
 )
 
-const (
-	layoutISO = "2006-01-02"
-)
-
-var NOTES = []string{"2020-02-14:\"Hello, World!\"", "Hello Ray!"}
-
-func CreateTimeStampFormat() string {
-	return time.Now().Format(layoutISO)
-}
-
-// fx a,a -> b
-func CreateNoteEntryText(timestamp, note string) string {
-	return timestamp + ":\"" + note + "\""
-}
-
-func CreateSearchResults(notes []string, text string) []string {
-	results := make([]string, 0)
-
-	for _, note := range notes {
-		if strings.Contains(note, text) {
-			results = append(results, note)
-		}
-	}
-
-	return results
+var NOTES = []Note{
+	{date: "2020-02-13", entry: "Hello Ray!"},
+	{date: "2020-02-14", entry: "Hello, World!"},
 }
 
 // Application Entry Point
@@ -75,11 +51,11 @@ func main() {
 			os.Exit(1)
 		}
 
-		// Call New Note Controller
-		NOTES = append(NOTES,
-			CreateNoteEntryText(
-				CreateTimeStampFormat(), *newTextPtr))
-		fmt.Println(strings.Join(NOTES, "\n"))
+		newNote := CreateNoteEntry(
+			CreateTimeStampFormat(), *newTextPtr)
+		NOTES = append(NOTES, newNote)
+
+		fmt.Println(NOTES)
 	}
 
 	if searchCommand.Parsed() {
@@ -90,13 +66,13 @@ func main() {
 		}
 
 		// Call Search Note Controller
-		note := CreateSearchResults(NOTES, *searchTextPtr)
-		if len(note) == 0 {
+		notes := CreateSearchResults(NOTES, *searchTextPtr)
+		if len(notes) == 0 {
 			fmt.Println("Failed to find:", *searchTextPtr)
 			os.Exit(1)
 		}
 
 		fmt.Println("Search Results:")
-		fmt.Println(strings.Join(note, "\n"))
+		fmt.Println(notes)
 	}
 }
