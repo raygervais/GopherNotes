@@ -4,34 +4,36 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"time"
 )
 
-var NOTES = []Note{
-	{date: "2020-02-13", entry: "Hello Ray!"},
-	{date: "2020-02-14", entry: "Hello, World!"},
-}
+const (
+	NotesLocation = "./gophernotes.db"
+	LayoutISO     = "2006-01-02"
+)
 
 // Application Entry Point
 func main() {
-	// Subcommand Parents
-	newCommand := flag.NewFlagSet("new", flag.ExitOnError)
-	searchCommand := flag.NewFlagSet("search", flag.ExitOnError)
+	// Create database if it doesn't exist
+	// Then connection for further use
+	database := CreateDatabaseConnection(NotesLocation)
+	InitializeNotesTable(database)
 
-	// New Note Command Flag Pointers
-	newTextPtr := newCommand.String("text", "", "Note text to be saved")
+	// Declare CLI Options
+	newCommand := GenerateFlag("new")
+	searchCommand := GenerateFlag("search")
 
-	// Search Note Command Flag Pointers
-	searchTextPtr := searchCommand.String("text", "", "Search notes with the following text")
+	// New Flag
+	newTextPtr := GenerateFlagParams(newCommand, "text", "", "note text to be saved")
 
-	// Verify we are providing a subcomamnd
-	// os.Arg[0] is the main command
-	// os.Arg[1] is the subcommand
-	if len(os.Args) < 2 {
-		fmt.Println("Please provide a command, new or search")
-		os.Exit(1)
-	}
+	// Search Flag
+	searchTextPtr := GenerateFlagParams(searchCommand, "text", "", "note text to be searched")
+	searchDatePtr := GenerateFlagParams(searchCommand, "date", "", "note date to be searched")
 
-	// Switch on subcommand parsing
+	// Confirm more than two args provided
+	VerifyFlagArguments(os.Args)
+
+	// Subcommand parsing
 	switch os.Args[1] {
 	case "new":
 		newCommand.Parse(os.Args[2:])
@@ -46,33 +48,44 @@ func main() {
 	// Validate Required Fields
 	if newCommand.Parsed() {
 		// Required Flags
-		if *newTextPtr == "" {
-			newCommand.PrintDefaults()
-			os.Exit(1)
+		VerifyFlagParams(newTextPtr, newCommand)
+
+		note := Note{
+			entry: *newTextPtr,
+			date:  time.Now().Format(LayoutISO),
 		}
 
-		newNote := CreateNoteEntry(
-			CreateTimeStampFormat(), *newTextPtr)
-		NOTES = append(NOTES, newNote)
+		InsertIntoNotesTable(database, note)
+		rows := RetrieveNotes(database)
 
-		fmt.Println(NOTES)
+		var entry, date string
+		var id int
+		for rows.Next() {
+			rows.Scan(&id, &entry, &date)
+			fmt.Printf("%v: %v\n", date, entry)
+		}
 	}
 
 	if searchCommand.Parsed() {
-		// Required Flags
-		if *searchTextPtr == "" {
-			searchCommand.PrintDefaults()
+		// Search by Text
+		if *searchTextPtr != "" && *searchDatePtr == "" {
+
+			notes := ParseDatabaseRows(
+				SearchNotesByEntry(database, *searchTextPtr))
+
+			fmt.Println(PrintNoteOutput(notes))
+
+			// Search by Date
+		} else if *searchDatePtr != "" && *searchTextPtr == "" {
+			notes := ParseDatabaseRows(
+				SearchNotesByDate(database, *searchDatePtr))
+
+			fmt.Println(PrintNoteOutput(notes))
+
+		} else {
+			fmt.Println("Search Parsing failed!")
+			flag.PrintDefaults()
 			os.Exit(1)
 		}
-
-		// Call Search Note Controller
-		notes := CreateSearchResults(NOTES, *searchTextPtr)
-		if len(notes) == 0 {
-			fmt.Println("Failed to find:", *searchTextPtr)
-			os.Exit(1)
-		}
-
-		fmt.Println("Search Results:")
-		fmt.Println(notes)
 	}
 }

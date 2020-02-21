@@ -1,6 +1,6 @@
 package main
 
-func Index(vs []string, t string) int {
+func Index(vs []Note, t Note) int {
 	for i, v := range vs {
 		if v == t {
 			return i
@@ -9,11 +9,11 @@ func Index(vs []string, t string) int {
 	return -1
 }
 
-func Include(vs []string, t string) bool {
+func Include(vs []Note, t Note) bool {
 	return Index(vs, t) >= 0
 }
 
-func Any(vs []string, f func(string) bool) bool {
+func Any(vs []Note, f func(Note) bool) bool {
 	for _, v := range vs {
 		if f(v) {
 			return true
@@ -22,7 +22,7 @@ func Any(vs []string, f func(string) bool) bool {
 	return false
 }
 
-func All(vs []string, f func(string) bool) bool {
+func All(vs []Note, f func(Note) bool) bool {
 	for _, v := range vs {
 		if !f(v) {
 			return false
@@ -41,8 +41,8 @@ func Filter(vs []Note, f func(Note) bool) []Note {
 	return vsf
 }
 
-func Map(vs []string, f func(string) string) []string {
-	vsm := make([]string, len(vs))
+func Map(vs []Note, f func(Note) String) []String {
+	vsm := make([]Note, len(vs))
 	for i, v := range vs {
 		vsm[i] = f(v)
 	}
