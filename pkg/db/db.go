@@ -26,7 +26,9 @@ func CreateDatabaseConnection(path string) Database {
 }
 
 func (db Database) InitializeNotesTable() error {
-	query := "CREATE TABLE IF NOT EXISTS notes (id INTEGER PRIMARY KEY, note TEXT, date TEXT)"
+	query := `CREATE VIRTUAL TABLE IF NOT EXISTS notes USING fts4 (
+		note TEXT NOT NULL, 
+		date TEXT NOT NULL)`
 
 	stmt, err := db.prepareQueryStatement(query)
 	if err != nil {
@@ -73,15 +75,14 @@ func (db Database) Fetch() (*sql.Rows, error) {
 }
 
 func (db Database) Search(entry string) (*sql.Rows, error) {
-	query := "SELECT note, date FROM notes WHERE note LIKE ? OR date LIKE ?"
+	query := "SELECT note, date FROM notes WHERE note MATCH ?"
 
-	fmt.Println(query, entry)
 	stmt, err := db.prepareQueryStatement(query)
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := stmt.Query(entry, entry)
+	res, err := stmt.Query(entry)
 	if err != nil {
 		return nil, err
 	}

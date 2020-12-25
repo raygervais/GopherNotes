@@ -3,10 +3,11 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
+
 	"github.com/raygervais/gophernotes/pkg/cli"
 	"github.com/raygervais/gophernotes/pkg/conf"
 	"github.com/raygervais/gophernotes/pkg/db"
-	"os"
 )
 
 var (
@@ -27,7 +28,8 @@ func main() {
 	}
 
 	// Create and connect to database
-	db := db.CreateDatabaseConnection(configPath + "/notes.db")
+	db := db.CreateDatabaseConnection(configPath +
+		conf.ApplicationName + conf.DatabaseLocation)
 	if err := db.InitializeNotesTable(); err != nil {
 		fmt.Printf("Could not initialize database and tables: %s", err)
 		os.Exit(1)

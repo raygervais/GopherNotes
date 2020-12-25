@@ -8,7 +8,7 @@ import (
 const (
 	// Formatting Helpers
 	LayoutISO        = "2006-01-02"
-	DatabaseLocation = "./notes.db"
+	DatabaseLocation = "/notes.db"
 	ApplicationName  = "/gn"
 )
 
@@ -28,7 +28,7 @@ func InitializeConfigurationLocation(path string) error {
 
 func createConfigurationFolder(path string) error {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
-		if err := os.Mkdir(path, 700); err != nil {
+		if err := os.Mkdir(path, 0777); err != nil {
 			return fmt.Errorf("Failed to create configuration folder: %s", err)
 		}
 	}
