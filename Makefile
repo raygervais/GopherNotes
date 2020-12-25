@@ -1,5 +1,5 @@
 build:
-	go build -o bin/gophernotes cmd/gophernotes/main.go
+	go build -o bin/gn cmd/gophernotes/main.go
 
 run:
 	go run cmd/gophernotes/main.go

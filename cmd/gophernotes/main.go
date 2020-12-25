@@ -4,6 +4,8 @@ import (
 	"flag"
 	"fmt"
 	"github.com/raygervais/gophernotes/pkg/cli"
+	"github.com/raygervais/gophernotes/pkg/conf"
+	"github.com/raygervais/gophernotes/pkg/db"
 	"os"
 )
 
@@ -12,9 +14,28 @@ var (
 )
 
 func main() {
-	flag.Parse()
+	// Determine where to store the database for the user based on operating system
+	configPath, err := conf.DetermineStorageLocation()
+	if err != nil {
+		fmt.Printf("Could not determine configuration location: %s", err)
+		os.Exit(1)
+	}
 
-	cli := cli.InitCLI()
+	if err := conf.InitializeConfigurationLocation(configPath); err != nil {
+		fmt.Printf("Could not initialize configuration location: %s", err)
+		os.Exit(1)
+	}
+
+	// Create and connect to database
+	db := db.CreateDatabaseConnection(configPath + "/notes.db")
+	if err := db.InitializeNotesTable(); err != nil {
+		fmt.Printf("Could not initialize database and tables: %s", err)
+		os.Exit(1)
+	}
+
+	cli := cli.InitCLI(db)
+
+	flag.Parse()
 
 	if *helpFlag || len(os.Args) == 1 {
 		cli.Help()
