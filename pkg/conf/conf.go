@@ -10,6 +10,7 @@ const (
 	LayoutISO        = "2006-01-02"
 	DatabaseLocation = "/notes.db"
 	ApplicationName  = "/gn"
+	DefaultEditor    = "vim"
 )
 
 func DetermineStorageLocation() (string, error) {

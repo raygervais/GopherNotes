@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/raygervais/gophernotes/pkg/db"
+	"github.com/raygervais/gophernotes/pkg/edit"
 )
 
 type CommandLineInterface struct {
@@ -20,8 +21,8 @@ func InitCLI(db db.Database) CommandLineInterface {
 
 	cli.commands = map[string]func() func(string) error{
 		"create": cli.create,
-		//		"edit":   cli.edit,
-		"fetch": cli.fetch,
+		"edit":   cli.edit,
+		"fetch":  cli.fetch,
 		//		"delete": cli.delete,
 		"search": cli.search,
 		//		"health": cli.health,
@@ -72,6 +73,36 @@ func (cli CommandLineInterface) create() func(string) error {
 		}
 
 		return nil
+	}
+}
+
+func (cli CommandLineInterface) edit() func(string) error {
+	return func(cmd string) error {
+		editCmd := flag.NewFlagSet(cmd, flag.ExitOnError)
+		id := editCmd.Int("id", -1, "The note to store")
+
+		if err := cli.checkArgs(1); err != nil {
+			return err
+		}
+
+		if err := cli.parseCmd(editCmd); err != nil {
+			return err
+		}
+
+		var note, date string
+		res, err := cli.database.RetrieveByID(*id)
+		if err != nil {
+			return err
+		}
+
+		res.Scan(&note, &date)
+
+		changes, err := edit.CaptureInputFromEditor(*id, note, date)
+		if err != nil {
+			return err
+		}
+
+		return cli.database.EditByID(*id, string(changes))
 	}
 }
 

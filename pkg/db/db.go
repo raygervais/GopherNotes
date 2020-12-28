@@ -64,41 +64,61 @@ func (db Database) Create(message string) error {
 }
 
 func (db Database) Fetch() (*sql.Rows, error) {
-	query := "SELECT note, date FROM notes"
+	query := "SELECT rowid, note, date FROM notes"
 
-	res, err := db.execQueryStatement(query)
-	if err != nil {
-		return nil, err
-	}
-
-	return res, nil
+	return db.execQueryStatement(query)
 }
 
 func (db Database) Search(entry string) (*sql.Rows, error) {
-	query := "SELECT note, date FROM notes WHERE note MATCH ?"
+	query := "SELECT rowid, note, date FROM notes WHERE note MATCH ?"
 
 	stmt, err := db.prepareQueryStatement(query)
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := stmt.Query(entry)
+	return stmt.Query(entry)
+}
+
+func (db Database) RetrieveByID(id int) (*sql.Row, error) {
+	query := "SELECT note, date from notes where rowid = ?"
+
+	stmt, err := db.prepareQueryStatement(query)
 	if err != nil {
 		return nil, err
 	}
 
-	return res, nil
+	return stmt.QueryRow(id), nil
+}
+
+func (db Database) EditByID(id int, changes string) error {
+	query := "UPDATE notes SET note = ? WHERE rowid = ?"
+
+	if len(changes) == 0 {
+		return fmt.Errorf("Invalid input provided as change parameter")
+	}
+
+	stmt, err := db.prepareQueryStatement(query)
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(changes, id)
+	if err != nil {
+		return fmt.Errorf("Failed to create new note entry: %s", err)
+	}
+	return nil
 }
 
 func (db Database) IterateOnRows(rows *sql.Rows) (string, error) {
 	var output string
 
-	var note, date string
+	var note, date, id string
 	for rows.Next() {
-		if err := rows.Scan(&note, &date); err != nil {
+		if err := rows.Scan(&id, &note, &date); err != nil {
 			return "", err
 		}
-		output += fmt.Sprintf("%v: %v\n", date, note)
+		output += fmt.Sprintf("%v) %v: %v\n", id, date, note)
 	}
 
 	return output, nil
