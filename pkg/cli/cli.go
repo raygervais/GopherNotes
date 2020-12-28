@@ -1,9 +1,12 @@
 package cli
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
+	"log"
 	"os"
+	"strings"
 
 	"github.com/raygervais/gophernotes/pkg/db"
 	"github.com/raygervais/gophernotes/pkg/edit"
@@ -23,7 +26,7 @@ func InitCLI(db db.Database) CommandLineInterface {
 		"create": cli.create,
 		"edit":   cli.edit,
 		"fetch":  cli.fetch,
-		//		"delete": cli.delete,
+		"delete": cli.delete,
 		"search": cli.search,
 		//		"health": cli.health,
 	}
@@ -56,7 +59,7 @@ func (cli CommandLineInterface) Help() {
 
 func (cli CommandLineInterface) create() func(string) error {
 	return func(cmd string) error {
-		createCmd := flag.NewFlagSet(cmd, flag.ExitOnError)
+		createCmd := cli.generateFlagSet(cmd)
 		note := createCmd.String("note", "", "The note to store")
 
 		if err := cli.checkArgs(1); err != nil {
@@ -78,7 +81,7 @@ func (cli CommandLineInterface) create() func(string) error {
 
 func (cli CommandLineInterface) edit() func(string) error {
 	return func(cmd string) error {
-		editCmd := flag.NewFlagSet(cmd, flag.ExitOnError)
+		editCmd := cli.generateFlagSet(cmd)
 		id := editCmd.Int("id", -1, "The note to store")
 
 		if err := cli.checkArgs(1); err != nil {
@@ -125,7 +128,7 @@ func (cli CommandLineInterface) fetch() func(string) error {
 
 func (cli CommandLineInterface) search() func(string) error {
 	return func(cmd string) error {
-		searchCmd := flag.NewFlagSet(cmd, flag.ExitOnError)
+		searchCmd := cli.generateFlagSet(cmd)
 		note := searchCmd.String("note", "", "The note text to search")
 
 		if err := cli.checkArgs(1); err != nil {
@@ -151,7 +154,66 @@ func (cli CommandLineInterface) search() func(string) error {
 	}
 }
 
+func (cli CommandLineInterface) delete() func(string) error {
+	return func(cmd string) error {
+		deleteCmd := cli.generateFlagSet(cmd)
+		id := deleteCmd.Int("id", -1, "The id of the note to delete")
+
+		if err := cli.checkArgs(1); err != nil {
+			return err
+		}
+
+		if err := cli.parseCmd(deleteCmd); err != nil {
+			return err
+		}
+
+		res, err := cli.database.RetrieveByID(*id)
+		if err != nil {
+			return err
+		}
+
+		var note, date string
+		res.Scan(&note, &date)
+
+		if cli.confirmUserAction(fmt.Sprintf("Confirm delete of: \n%s\n%s", note, date)) {
+			err := cli.database.DeleteByID(*id)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+}
+
+func (cli CommandLineInterface) health() func(string) error {
+
+	return nil
+}
+
 // Utility Functions
+func (cli CommandLineInterface) generateFlagSet(cmd string) *flag.FlagSet {
+	return flag.NewFlagSet(cmd, flag.ExitOnError)
+}
+
+func (cli CommandLineInterface) confirmUserAction(action string) bool {
+	fmt.Println(action)
+	fmt.Println("Enter Y/n")
+
+	reader := bufio.NewReader(os.Stdin)
+
+	response, err := reader.ReadString('\n')
+	if err != nil {
+		log.Fatal(err)
+		return false
+	}
+	response = strings.ToLower(strings.TrimSpace(response))
+
+	if response == "y" || response == "yes" {
+		return true
+	}
+
+	return false
+}
 
 func (cli CommandLineInterface) parseCmd(cmd *flag.FlagSet) error {
 	if err := cmd.Parse(os.Args[2:]); err != nil {

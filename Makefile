@@ -8,6 +8,7 @@ fmt:
 	go fmt ./...
 
 publish:
-	GOOS=freebsd GOARCH=386 go build -o bin/gophernotes-freebsd-386 cmd/gophernotes/main.go
-	GOOS=linux   GOARCH=386 go build -o bin/gophernotes-linux-386   cmd/gophernotes/main.go
-	GOOS=windows GOARCH=386 go build -o bin/gophernotes-windows-386 cmd/gophernotes/main.go
+	GOOS=freebsd GOARCH=386 go build -o bin/gn-freebsd-386 cmd/gophernotes/main.go
+	GOOS=linux   GOARCH=386 go build -o bin/gn-linux-386   cmd/gophernotes/main.go
+	GOOS=windows GOARCH=386 go build -o bin/gn-windows-386 cmd/gophernotes/main.go
+	GOOS=darwin  GOARCH=amd64 go build -o bin/gn-macos-64  cmd/gophernotes/main.go

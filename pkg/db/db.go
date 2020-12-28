@@ -105,7 +105,22 @@ func (db Database) EditByID(id int, changes string) error {
 
 	_, err = stmt.Exec(changes, id)
 	if err != nil {
-		return fmt.Errorf("Failed to create new note entry: %s", err)
+		return fmt.Errorf("Failed to Edit note with rowid: %d\n%s", err)
+	}
+	return nil
+}
+
+func (db Database) DeleteByID(id int) error {
+	query := "DELETE FROM notes WHERE rowid = ?"
+
+	stmt, err := db.prepareQueryStatement(query)
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(id)
+	if err != nil {
+		return fmt.Errorf("Failed to delete note with rowid: %d\n%s", id, err)
 	}
 	return nil
 }
