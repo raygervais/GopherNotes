@@ -71,12 +71,40 @@ func TestCrudInterface(t *testing.T) {
 			error:   "",
 			code:    0,
 		},
+		{
+			desc:    "Fetch Valid with Sort Order Args",
+			command: []string{"", "search"},
+			args:    []string{"--sort", "desc"},
+			error:   "",
+			code:    0,
+		},
+		{
+			desc:    "Fetch Valid with Limit Args",
+			command: []string{"", "search"},
+			args:    []string{"--limit", "2"},
+			error:   "",
+			code:    0,
+		},
 
 		// Search
 		{
 			desc:    "Search Valid",
 			command: []string{"", "search"},
 			args:    []string{"--note", "Testing"},
+			error:   "",
+			code:    0,
+		},
+		{
+			desc:    "Search Valid with Sort Order Args",
+			command: []string{"", "search"},
+			args:    []string{"--note", "Testing", "--sort", "desc"},
+			error:   "",
+			code:    0,
+		},
+		{
+			desc:    "Search Valid with Limit Args",
+			command: []string{"", "search"},
+			args:    []string{"--note", "Testing", "--limit", "2"},
 			error:   "",
 			code:    0,
 		},
