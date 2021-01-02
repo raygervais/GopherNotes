@@ -31,9 +31,11 @@ func CreateDatabaseConnection(path string) Database {
 // InitializeNotesTable creates the virtual NOTES table,
 // leveraging fts4 for whole-world pattern matching.
 func (db Database) InitializeNotesTable() error {
-	query := `CREATE VIRTUAL TABLE IF NOT EXISTS notes USING fts4 (
-		note TEXT NOT NULL, 
-		date TEXT NOT NULL)`
+	query := `
+		CREATE VIRTUAL TABLE IF NOT EXISTS notes USING fts4 (
+			note TEXT NOT NULL, 
+			date TEXT NOT NULL
+		)`
 
 	stmt, err := db.prepareQueryStatement(query)
 	if err != nil {
@@ -69,16 +71,27 @@ func (db Database) Create(message string) error {
 	return nil
 }
 
-// Fetch retrieves all notes from DB based on order of entry.
-func (db Database) Fetch() (*sql.Rows, error) {
-	query := "SELECT rowid, note, date FROM notes"
+// Fetch retrieves all notes from DB based on order of sort order provided and
+// row limit.
+func (db Database) Fetch(limit int, sort string) (*sql.Rows, error) {
+	query := fmt.Sprintf(`
+		SELECT rowid, note, date 
+		FROM notes 
+		ORDER BY rowid %s
+		LIMIT %d;`, sort, limit)
 
 	return db.execQueryStatement(query)
 }
 
-// Search retrieves all notes which comply with the pattern match provided.
-func (db Database) Search(entry string) (*sql.Rows, error) {
-	query := "SELECT rowid, note, date FROM notes WHERE note MATCH ?"
+// Search retrieves all notes which comply with the pattern match provided, and the
+// supplied sort order and limit.
+func (db Database) Search(entry string, limit int, sort string) (*sql.Rows, error) {
+	query := fmt.Sprintf(`
+		SELECT rowid, note, date 
+		FROM notes 
+		WHERE note MATCH ?
+		ORDER BY rowid %s
+		LIMIT %d`, sort, limit)
 
 	stmt, err := db.prepareQueryStatement(query)
 	if err != nil {

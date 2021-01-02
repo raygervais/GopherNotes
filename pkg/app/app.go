@@ -39,12 +39,12 @@ func Application() (int, string) {
 
 	if *helpFlag || len(os.Args) == 1 {
 		cli.Help()
-		return 0, "Exiting"
+		return 0, ""
 	}
 
 	if err := cli.Handler(); err != nil {
 		return 1, fmt.Sprintf("Command error: %v\n", err)
 	}
 
-	return 0, "Exiting"
+	return 0, ""
 }

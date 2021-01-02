@@ -120,7 +120,14 @@ func (cli CommandLineInterface) edit() func(string) error {
 
 func (cli CommandLineInterface) fetch() func(string) error {
 	return func(cmd string) error {
-		rows, err := cli.database.Fetch()
+		fetchCmd := cli.generateFlagSet(cmd)
+		limit, sort := cli.createFilterArgs(fetchCmd)
+
+		if err := cli.parseCmd(fetchCmd); err != nil {
+			return err
+		}
+
+		rows, err := cli.database.Fetch(*limit, *sort)
 		if err != nil {
 			return err
 		}
@@ -139,6 +146,7 @@ func (cli CommandLineInterface) search() func(string) error {
 	return func(cmd string) error {
 		searchCmd := cli.generateFlagSet(cmd)
 		note := searchCmd.String("note", "", "The note text to search")
+		limit, sort := cli.createFilterArgs(searchCmd)
 
 		if err := cli.checkArgs(1); err != nil {
 			return err
@@ -148,7 +156,7 @@ func (cli CommandLineInterface) search() func(string) error {
 			return err
 		}
 
-		rows, err := cli.database.Search(*note)
+		rows, err := cli.database.Search(*note, *limit, *sort)
 		if err != nil {
 			return err
 		}
@@ -247,4 +255,11 @@ func (cli CommandLineInterface) checkArgs(minArgs int) error {
 	}
 
 	return nil
+}
+
+func (cli CommandLineInterface) createFilterArgs(cmd *flag.FlagSet) (*int, *string) {
+	limit := cmd.Int("limit", 10, "Limit of results to return")
+	sort := cmd.String("sort", "asc", "Sort order [asc | dec]")
+
+	return limit, sort
 }
