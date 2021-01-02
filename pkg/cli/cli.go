@@ -12,11 +12,16 @@ import (
 	"github.com/raygervais/gophernotes/pkg/edit"
 )
 
+// CommandLineInterface contains an internal connection to
+// the SQLite3 DB, and encompasses a hashmap of functions which
+// represent the CLI actions the user can invoke.
 type CommandLineInterface struct {
 	commands map[string]func() func(string) error
 	database db.Database
 }
 
+// InitCLI creates a new CommandLineInterface instance
+// with the appropriate function layout for the interface.
 func InitCLI(db db.Database) CommandLineInterface {
 	cli := CommandLineInterface{
 		database: db,
@@ -34,6 +39,9 @@ func InitCLI(db db.Database) CommandLineInterface {
 	return cli
 }
 
+// Handler is the primary entry point after initialization,
+// validating the provided commands and then calling their respective
+// callbacks.
 func (cli CommandLineInterface) Handler() error {
 	action := os.Args[1]
 
@@ -47,6 +55,7 @@ func (cli CommandLineInterface) Handler() error {
 	return cmd()(action)
 }
 
+// Help displays the appropriate help message per function.
 func (cli CommandLineInterface) Help() {
 	var help string
 
@@ -158,6 +167,7 @@ func (cli CommandLineInterface) delete() func(string) error {
 	return func(cmd string) error {
 		deleteCmd := cli.generateFlagSet(cmd)
 		id := deleteCmd.Int("id", -1, "The id of the note to delete")
+		confirm := deleteCmd.Bool("y", false, "The id of the note to delete")
 
 		if err := cli.checkArgs(1); err != nil {
 			return err
@@ -175,12 +185,13 @@ func (cli CommandLineInterface) delete() func(string) error {
 		var note, date string
 		res.Scan(&note, &date)
 
-		if cli.confirmUserAction(fmt.Sprintf("Confirm delete of: \n%s\n%s", note, date)) {
-			err := cli.database.DeleteByID(*id)
+		if *confirm || cli.confirmUserAction(fmt.Sprintf("Confirm delete of: \n%s\n%s", note, date)) {
+			err = cli.database.DeleteByID(*id)
 			if err != nil {
 				return err
 			}
 		}
+
 		return nil
 	}
 }
@@ -231,7 +242,7 @@ func (cli CommandLineInterface) checkArgs(minArgs int) error {
 	if len(os.Args)-2 < minArgs {
 		fmt.Printf("Incorrect use of %s\n%s %s --help\n",
 			os.Args[1], os.Args[0], os.Args[1])
-		return fmt.Errorf("%s expects at least %d args, %d provided.",
+		return fmt.Errorf("%s expects at least %d args, %d provided",
 			os.Args[1], minArgs, len(os.Args)-2)
 	}
 

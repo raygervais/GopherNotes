@@ -11,9 +11,11 @@ import (
 )
 
 const (
+	// DefaultEditor currently only supports Linux and TUI semantics
 	DefaultEditor = "vim"
 )
 
+// OpenFileInEditor allows us to edit the temp file in default $EDITOR
 func OpenFileInEditor(filename string) error {
 	editor := os.Getenv("EDITOR")
 	if editor == "" {
@@ -34,6 +36,8 @@ func OpenFileInEditor(filename string) error {
 	return cmd.Run()
 }
 
+// CaptureInputFromEditor opens the temp file created and reads changes
+// Returns changes found in the tempfile prior to cleaning up tempdir
 func CaptureInputFromEditor(id int, note, date string) ([]byte, error) {
 	file, err := ioutil.TempFile(os.TempDir(), "*")
 	if err != nil {

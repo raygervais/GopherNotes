@@ -12,3 +12,9 @@ publish:
 	GOOS=linux   GOARCH=386 go build -o bin/gn-linux-386   cmd/gophernotes/main.go
 	GOOS=windows GOARCH=386 go build -o bin/gn-windows-386 cmd/gophernotes/main.go
 	GOOS=darwin  GOARCH=amd64 go build -o bin/gn-macos-64  cmd/gophernotes/main.go
+
+test:
+	go test ./... --vv --cover
+
+race:
+	go test ./... --race
