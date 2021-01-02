@@ -4,8 +4,9 @@
 *.dll
 *.so
 *.dylib
+*.db
 
-gophernotes
+bin/*
 
 # Test binary, built with `go test -c`
 *.test
