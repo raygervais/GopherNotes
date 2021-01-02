@@ -52,7 +52,7 @@ func TestCrudInterface(t *testing.T) {
 			desc:    "Create Invalid Note (Missing Args)",
 			command: []string{"", "create"},
 			args:    []string{},
-			error:   "create expects at least 1 args, 0 provided.",
+			error:   "create expects at least 1 args, 0 provided",
 			code:    1,
 		},
 
@@ -84,7 +84,7 @@ func TestCrudInterface(t *testing.T) {
 			desc:    "Search Invalid (Missing Args)",
 			command: []string{"", "search"},
 			args:    []string{},
-			error:   "search expects at least 1 args, 0 provided.",
+			error:   "search expects at least 1 args, 0 provided",
 			code:    1,
 		},
 
@@ -101,7 +101,7 @@ func TestCrudInterface(t *testing.T) {
 			desc:    "Delete Invalid",
 			command: []string{"", "delete"},
 			args:    []string{"--id", "-101023", "--y"},
-			error:   "No rows were deleted with rowid: -101023\n",
+			error:   "0 rows were deleted with rowid: -101023",
 			code:    1,
 		},
 
