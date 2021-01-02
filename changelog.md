@@ -1,10 +1,11 @@
 # Changelog
 
-## [0.1] - 2020-12-27
+## [MVP] - 2021-01-01
 
 ### Added
 
 - CRUD support for creating, editing, retrieving and deleting a note
+- Application now creates it's own configuration folder in \*NIX systems.
 
 ### Changed
 
