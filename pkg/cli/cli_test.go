@@ -1,32 +1,20 @@
 package cli_test
 
 import (
-	"fmt"
 	"os"
 	"testing"
 
 	"github.com/raygervais/gophernotes/pkg/cli"
-	"github.com/raygervais/gophernotes/pkg/db"
 	"github.com/raygervais/gophernotes/test"
 )
 
-var testCLI cli.CommandLineInterface
-
-func setup() {
-	fmt.Println("Setting up Database")
-	db := db.CreateDatabaseConnection("/tmp/test.db")
-	db.InitializeNotesTable()
-	testCLI = cli.InitCLI(db)
-}
-
-func teardown() {
-	fmt.Println("Tearing down: Deleting Database")
-	os.Remove("/tmp/test.db")
-}
+var (
+	testCLI cli.CommandLineInterface
+)
 
 func TestCrudInterface(t *testing.T) {
-	setup()
-	defer teardown()
+	testCLI := cli.InitCLI(test.SetupDatabase(t))
+	defer test.TeardownDatabase(t)
 	// First entry in command string array is empty since this would be the binary name during runtime
 	// Ex. gn create --help
 	//    [0] [1]   [2]
