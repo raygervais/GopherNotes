@@ -37,6 +37,14 @@ func TestCrudInterface(t *testing.T) {
 			code: 0,
 		},
 		{
+			desc:    "Create Valid Note With Editor",
+			command: []string{"", "create"},
+			args: []string{
+				"--edit",
+			},
+			code: 0,
+		},
+		{
 			desc:    "Create Invalid Note (Missing Args)",
 			command: []string{"", "create"},
 			args:    []string{},

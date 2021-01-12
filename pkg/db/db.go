@@ -55,7 +55,7 @@ func (db Database) Create(message string) error {
 	query := "INSERT INTO NOTES (note, date) VALUES (?, ?)"
 
 	if len(message) == 0 {
-		return fmt.Errorf("Invalid input provided as message parameter")
+		return fmt.Errorf("no valid message provided, exiting application")
 	}
 
 	stmt, err := db.prepareQueryStatement(query)
