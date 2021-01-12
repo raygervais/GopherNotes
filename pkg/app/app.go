@@ -27,8 +27,13 @@ func Application() (int, string) {
 	}
 
 	// Create and connect to database
-	db := db.CreateDatabaseConnection(configPath +
+	db, err := db.CreateDatabaseConnection(configPath +
 		conf.ApplicationName + conf.DatabaseLocation)
+
+	if err != nil {
+		return 1, fmt.Sprint(err)
+	}
+
 	if err := db.InitializeNotesTable(); err != nil {
 		return 1, fmt.Sprintf("Could not initialize database and tables: %s", err)
 	}

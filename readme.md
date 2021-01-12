@@ -2,6 +2,20 @@
 
 An CLI Note taking application written entirely Golang!
 
+- [GopherNotes 📓](#gophernotes-)
+  - [Installation](#installation)
+  - [Usage](#usage)
+    - [Filters](#filters)
+  - [Building & Developing](#building--developing)
+    - [Formatting](#formatting)
+    - [Testing](#testing)
+    - [Building to Publish](#building-to-publish)
+    -
+
+## Installation
+
+Currently, there is no packaging implemented yet for GopherNotes, so the only way to get the application is by [downloading](#downloading) or [building](#building--developing) it.
+
 ## Usage
 
 | Function    | Command                                           | Comments & Tips                                                                                                                                |

@@ -16,16 +16,16 @@ type Database struct {
 
 // CreateDatabaseConnection creates or connects to an existing SQLite3 DB,
 // path provided must be absolute path to file.
-func CreateDatabaseConnection(path string) Database {
+func CreateDatabaseConnection(path string) (Database, error) {
 	db, err := sql.Open("sqlite3", path)
 
 	if err != nil {
-		fmt.Printf("Error opening database connection: %s\n", err)
+		return Database{}, fmt.Errorf("error opening database connection: \n%s", err)
 	}
 
 	return Database{
 		connection: db,
-	}
+	}, nil
 }
 
 // InitializeNotesTable creates the virtual NOTES table,
@@ -93,6 +93,10 @@ func (db Database) Search(entry string, limit int, sort string) (*sql.Rows, erro
 		ORDER BY rowid %s
 		LIMIT %d`, sort, limit)
 
+	if len(entry) == 0 {
+		return nil, fmt.Errorf("Invalid input provided as message parameter")
+	}
+
 	stmt, err := db.prepareQueryStatement(query)
 	if err != nil {
 		return nil, err
@@ -117,6 +121,10 @@ func (db Database) RetrieveByID(id int) (*sql.Row, error) {
 func (db Database) EditByID(id int, changes string) error {
 	query := "UPDATE notes SET note = ? WHERE rowid = ?"
 
+	if id == -1 {
+		return fmt.Errorf("Invalid input provided as id parameter")
+	}
+
 	if len(changes) == 0 {
 		return fmt.Errorf("Invalid input provided as change parameter")
 	}
@@ -136,6 +144,10 @@ func (db Database) EditByID(id int, changes string) error {
 // DeleteByID processes deletion of a single entry with the supplied rowid.
 func (db Database) DeleteByID(id int) error {
 	query := "DELETE FROM notes WHERE rowid = ?"
+
+	if id == -1 {
+		return fmt.Errorf("Invalid input provided as id parameter")
+	}
 
 	stmt, err := db.prepareQueryStatement(query)
 	if err != nil {

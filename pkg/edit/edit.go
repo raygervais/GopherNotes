@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 const (
@@ -15,20 +16,43 @@ const (
 	DefaultEditor = "vim"
 )
 
-// OpenFileInEditor allows us to edit the temp file in default $EDITOR
-func OpenFileInEditor(filename string) error {
+// PreferredEditorResolver is a function that returns an editor that the user
+// prefers to use, such as the configured `$EDITOR` environment variable.
+type PreferredEditorResolver func() string
+
+// GetPreferredEditorFromEnvironment returns the user's editor as defined by the
+// `$EDITOR` environment variable, or the `DefaultEditor` if it is not set.
+func GetPreferredEditorFromEnvironment() string {
 	editor := os.Getenv("EDITOR")
+
 	if editor == "" {
-		editor = DefaultEditor
+		return DefaultEditor
 	}
 
+	return editor
+}
+
+func resolveEditorArguments(executable string, filename string) []string {
+	args := []string{filename}
+
+	if strings.Contains(executable, "Visual Studio Code.app") || strings.Contains(executable, "code") {
+		args = append([]string{"--wait"}, args...)
+	}
+
+	// Other common editors
+
+	return args
+}
+
+// OpenFileInEditor allows us to edit the temp file in default $EDITOR
+func OpenFileInEditor(filename string, resolveEditor PreferredEditorResolver) error {
 	// Get the full executable path for the editor.
-	executable, err := exec.LookPath(editor)
+	executable, err := exec.LookPath(resolveEditor())
 	if err != nil {
 		return err
 	}
 
-	cmd := exec.Command(executable, filename)
+	cmd := exec.Command(executable, resolveEditorArguments(executable, filename)...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -52,7 +76,7 @@ func CaptureInputFromEditor(id int, note, date string) ([]byte, error) {
 		return []byte{}, err
 	}
 
-	if err = OpenFileInEditor(fileName); err != nil {
+	if err = OpenFileInEditor(fileName, GetPreferredEditorFromEnvironment); err != nil {
 		return []byte{}, err
 	}
 
