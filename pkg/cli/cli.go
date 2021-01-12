@@ -70,13 +70,20 @@ func (cli CommandLineInterface) create() func(string) error {
 	return func(cmd string) error {
 		createCmd := cli.generateFlagSet(cmd)
 		note := createCmd.String("note", "", "The note to store")
+		editor := createCmd.Bool("edit", false, "Use user defined editor to write note")
 
-		if err := cli.checkArgs(1); err != nil {
+		if err := cli.handleFlagsParse(createCmd, 1); err != nil {
 			return err
 		}
 
-		if err := cli.parseCmd(createCmd); err != nil {
-			return err
+		// Use Editor if arg --edit supplied
+		if *editor {
+			input, err := edit.CaptureInputFromEditor(-1, *note, "")
+			if err != nil {
+				return err
+			}
+
+			*note = string(input)
 		}
 
 		// Do DB Transaction
@@ -93,11 +100,7 @@ func (cli CommandLineInterface) edit() func(string) error {
 		editCmd := cli.generateFlagSet(cmd)
 		id := editCmd.Int("id", -1, "The note to store")
 
-		if err := cli.checkArgs(1); err != nil {
-			return err
-		}
-
-		if err := cli.parseCmd(editCmd); err != nil {
+		if err := cli.handleFlagsParse(editCmd, 1); err != nil {
 			return err
 		}
 
@@ -148,11 +151,7 @@ func (cli CommandLineInterface) search() func(string) error {
 		note := searchCmd.String("note", "", "The note text to search")
 		limit, sort := cli.createFilterArgs(searchCmd)
 
-		if err := cli.checkArgs(1); err != nil {
-			return err
-		}
-
-		if err := cli.parseCmd(searchCmd); err != nil {
+		if err := cli.handleFlagsParse(searchCmd, 1); err != nil {
 			return err
 		}
 
@@ -177,11 +176,7 @@ func (cli CommandLineInterface) delete() func(string) error {
 		id := deleteCmd.Int("id", -1, "The id of the note to delete")
 		confirm := deleteCmd.Bool("y", false, "The id of the note to delete")
 
-		if err := cli.checkArgs(1); err != nil {
-			return err
-		}
-
-		if err := cli.parseCmd(deleteCmd); err != nil {
+		if err := cli.handleFlagsParse(deleteCmd, 1); err != nil {
 			return err
 		}
 
@@ -262,4 +257,16 @@ func (cli CommandLineInterface) createFilterArgs(cmd *flag.FlagSet) (*int, *stri
 	sort := cmd.String("sort", "asc", "Sort order [asc | dec]")
 
 	return limit, sort
+}
+
+func (cli CommandLineInterface) handleFlagsParse(cmd *flag.FlagSet, minArgs int) error {
+	if err := cli.checkArgs(1); err != nil {
+		return err
+	}
+
+	if err := cli.parseCmd(cmd); err != nil {
+		return err
+	}
+
+	return nil
 }
