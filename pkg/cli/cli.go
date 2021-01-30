@@ -66,6 +66,13 @@ func (cli CommandLineInterface) Help() {
 	fmt.Printf("Usage of %s:\n <command> [<args>]\n%s", os.Args[0], help)
 }
 
+// TODO: Connect this to configuration file
+
+// Version displays the current application version
+func (cli CommandLineInterface) Version() {
+	fmt.Printf("GopherNotes Version 1.0.0")
+}
+
 func (cli CommandLineInterface) create() func(string) error {
 	return func(cmd string) error {
 		createCmd := cli.generateFlagSet(cmd)

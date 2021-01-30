@@ -146,6 +146,15 @@ func TestCrudInterface(t *testing.T) {
 			code:    0,
 		},
 
+		// Version
+		{
+			desc:    "Version valid",
+			command: []string{"", "--version"},
+			args:    []string{},
+			error:   "",
+			code:    0,
+		},
+
 		// CLI Error Handling
 		{
 			desc:    "Invalid Command",

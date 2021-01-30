@@ -11,7 +11,8 @@ import (
 )
 
 var (
-	helpFlag = flag.Bool("help", false, "Display application usage material")
+	helpFlag    = flag.Bool("help", false, "Display application usage material")
+	versionFlag = flag.Bool("version", false, "Display application version")
 )
 
 // Application is a wrapper around main function so we can test various args
@@ -44,6 +45,11 @@ func Application() (int, string) {
 
 	if *helpFlag || len(os.Args) == 1 {
 		cli.Help()
+		return 0, ""
+	}
+
+	if *versionFlag {
+		cli.Version()
 		return 0, ""
 	}
 
