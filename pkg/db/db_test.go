@@ -48,7 +48,7 @@ func TestDatabaseCreate(t *testing.T) {
 
 	t.Run("Create invalid empty note", func(t *testing.T) {
 		err := db.Create("")
-		test.ExpectToEqualString(t, err.Error(), "Invalid input provided as message parameter")
+		test.ExpectToEqualString(t, err.Error(), "no valid message provided, exiting application")
 	})
 }
 
