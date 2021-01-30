@@ -6,6 +6,7 @@ An CLI Note taking application written entirely Golang!
   - [Installation](#installation)
   - [Usage](#usage)
     - [Filters](#filters)
+  - [Configuration](#configuration)
   - [Building & Developing](#building--developing)
     - [Formatting](#formatting)
     - [Testing](#testing)
@@ -33,6 +34,15 @@ The following filters exist for `Fetch` and `Search` as arguments to be provided
 | -------- | ------------- | ------------ | --------------------------------------------------------------------------------- |
 | Limit    | int           | `--limit 10` | If not provided, the default amount to return is 10                               |
 | Sort     | string        | `--sort asc` | If not provided, the default value is `asc`. Other valid is `desc` for descending |
+
+## Configuration
+
+GopherNotes can be configured to your formatting and editing preferences. To modify your `defaultEditor` for example, you'd change the line found in `~/.config/gn/conf.json` to your preferred editor of choice (**Note: editor must be in known path**).
+
+| Configuration | Description                                       | Default    | Notes                                                |
+| ------------- | ------------------------------------------------- | ---------- | ---------------------------------------------------- |
+| defaultEditor | The editor to use when creating or editing a note | vim        |                                                      |
+| dateFormat    | The format to store date strings into database    | YYYY-MM-DD | Changing this will not affect previously saved notes |
 
 ## Building & Developing
 

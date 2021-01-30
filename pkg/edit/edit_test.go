@@ -5,6 +5,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/raygervais/gophernotes/pkg/conf"
 	"github.com/raygervais/gophernotes/pkg/edit"
 	"github.com/raygervais/gophernotes/test"
 )
@@ -46,7 +47,7 @@ func TestEditorEnvironmentLookup(t *testing.T) {
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
 			os.Setenv("EDITOR", tC.editor)
-			test.ExpectToEqualString(t, edit.DefaultEditor, "vim")
+			test.ExpectToEqualString(t, conf.ExternalConfig.DefaultEditor, "vim")
 			test.ExpectToEqualString(t, edit.GetPreferredEditorFromEnvironment(), tC.editor)
 		})
 	}

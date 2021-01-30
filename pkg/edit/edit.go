@@ -9,11 +9,8 @@ import (
 	"os"
 	"os/exec"
 	"strings"
-)
 
-const (
-	// DefaultEditor currently only supports Linux and TUI semantics
-	DefaultEditor = "vim"
+	"github.com/raygervais/gophernotes/pkg/conf"
 )
 
 // PreferredEditorResolver is a function that returns an editor that the user
@@ -26,7 +23,7 @@ func GetPreferredEditorFromEnvironment() string {
 	editor := os.Getenv("EDITOR")
 
 	if editor == "" {
-		return DefaultEditor
+		return conf.ExternalConfig.DefaultEditor
 	}
 
 	return editor

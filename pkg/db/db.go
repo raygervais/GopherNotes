@@ -63,7 +63,7 @@ func (db Database) Create(message string) error {
 		return err
 	}
 
-	_, err = stmt.Exec(message, time.Now().Format(conf.LayoutISO))
+	_, err = stmt.Exec(message, time.Now().Format(conf.ExternalConfig.DateFormat))
 	if err != nil {
 		return fmt.Errorf("Failed to create new note entry: %s", err)
 	}
